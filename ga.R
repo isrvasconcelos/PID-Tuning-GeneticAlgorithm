@@ -5,22 +5,23 @@ geneticAlgorithm <- function(population) {
 	firstRun <- TRUE
 	qtArgs <- 3
 	maxiter <- 250
-	popsize <- 20
+	popSize <- 20
 	currentPop <- 1
 	range <- seq(from=.5, to=100, by=.5)
 	elitism <- 5
 	mutation <- 40 # Mutation probability in %
 
 
-	winner <- matrix(nrow=elitism, ncol=qtArgs)
-	fitVector <-  vector(mode="double", length=popsize)
+	winner <- matrix(1,nrow=elitism, ncol=qtArgs)
+	previousWinner <- winner
+	fitVector <-  vector(mode="double", length=popSize)
 
 	if(is.null(population)) {
-		population <- matrix(nrow=popsize, ncol=qtArgs)
+		population <- matrix(nrow=popSize, ncol=qtArgs)
 	}
 
 	else {
-		auxPop <- matrix(nrow=popsize, ncol=qtArgs)
+		auxPop <- matrix(nrow=popSize, ncol=qtArgs)
 
 		currentPop <- nrow(population)
 
@@ -33,7 +34,7 @@ geneticAlgorithm <- function(population) {
 			auxPop[auxIt,3]<-pop[(i),3]
 
 			auxIt=auxIt+1
-			if(auxIt > popsize)
+			if(auxIt > popSize)
 				break
 		}
 
@@ -45,7 +46,8 @@ geneticAlgorithm <- function(population) {
 
 	###########################################
 	# Start Population
-	population[currentPop:popsize,] <- sample(range, size=length(currentPop:popsize)*qtArgs)
+	if(!currentPop>popSize) 
+		population[popSize:currentPop,] <- sample(range, size=length(currentPop:popSize)*qtArgs)
 
 	print("###################")
 	print("Current Population:")
@@ -56,7 +58,7 @@ geneticAlgorithm <- function(population) {
 
 		###########################################
 		# Fill fitVector andEvaluate Fitness
-		for(j in 1:popsize) {
+		for(j in 1:popSize) {
 			Kp = population[j,1]
 			Ki = population[j,2]
 			Kd = population[j,3]
@@ -67,8 +69,9 @@ geneticAlgorithm <- function(population) {
 		###########################################
 		# Selecting the best ones
 		sortedFitVector <- sort(fitVector)
-		for(j in 1:elitism) {
+		previousWinner <- winner
 
+		for(j in 1:elitism) {
 			winner[j,1] <- population[which(fitVector==sortedFitVector[j]),1][1]
 			winner[j,2] <- population[which(fitVector==sortedFitVector[j]),2][1]
 			winner[j,3] <- population[which(fitVector==sortedFitVector[j]),3][1]
@@ -79,7 +82,7 @@ geneticAlgorithm <- function(population) {
 
 		###########################################
 		# Crossover
-		for(j in (popsize-elitism+1):popsize) {
+		for(j in (popSize-elitism+1):popSize) {
 			for(k in 1:qtArgs) {
 				population[j,k] <- sample(winner[,k], size=1)
 			}
@@ -88,12 +91,15 @@ geneticAlgorithm <- function(population) {
 
 		###########################################
 		# Mutation
-		for(j in (popsize-elitism+1):popsize) {
+		for(j in (popSize-elitism+1):popSize) {
 			roulette <- sample(1:100, size=1)
 			if(roulette > 100-mutation)
 				population[j,] <- sample(range, size=qtArgs)
 		}
 
+
+		###########################################
+		# Plotting the First Iteration
 		if(firstRun && i==1) {
 			OutputInfo <- fitness(winner[1,1], winner[1,2], winner[1,3])
 			Error <- OutputInfo$Error
@@ -106,11 +112,12 @@ geneticAlgorithm <- function(population) {
 			dev.off()
 		}
 	
-		print(paste("Best fit set:", toString(winner[1,])))
-
+		if((winner[1,1] != previousWinner[1,1]) && (winner[1,2] != previousWinner[1,2]) && (winner[1,3] != previousWinner[1,3]))	
+			print(paste("Best fit set:", toString(winner[1,])))
 	}
 
-
+	###########################################
+	# Plotting the Result
 	OutputInfo <- fitness(winner[1,1], winner[1,2], winner[1,3])
 	Error <- OutputInfo$Error
 	TimeInterval <- OutputInfo$TimeInterval
