@@ -107,7 +107,7 @@ geneticAlgorithm <- function(population) {
 			SettlingTime <- OutputInfo$SettlingTime
 			setEPS()
 			postscript("graphic-firstIteration (RandomPop).eps")
-			plot(x=TimeInterval , y=Error*100, xlab='Time (s)', ylab='Error (%)', type='l', main='Step Response Error in Relation to the Setpoint ')
+			plot(x=TimeInterval , y=Error*100, ylim=c(0,100), xlab='Time (s)', ylab='Error (%)', type='l', main='Step Response Error in Relation to the Setpoint ')
 			abline(v=SettlingTime, h=5, col="red", lwd=3, lty=2)	
 			dev.off()
 		}
@@ -124,7 +124,7 @@ geneticAlgorithm <- function(population) {
 	SettlingTime <- OutputInfo$SettlingTime
 	setEPS()
 	postscript("graphic-tunedPID.eps")
-	plot(x=TimeInterval , y=Error*100, xlab='Time (s)', ylab='Error (%)', type='l', main='Step Response Error in Relation to the Setpoint ')
+	plot(x=TimeInterval , y=Error*100, ylim=c(0,100), xlab='Time (s)', ylab='Error (%)', type='l', main='Step Response Error in Relation to the Setpoint ')
 	abline(v=SettlingTime, h=5, col="red", lwd=3, lty=2)
 	dev.off()
 
